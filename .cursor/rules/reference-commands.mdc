@@ -1,0 +1,64 @@
+---
+description: 基本コマンド集
+globs: 
+alwaysApply: false
+---
+# 基本コマンド集 – JWT 版 Todo アプリ
+
+## データベース確認
+
+```bash
+# DB ファイル一覧
+ls -la backend/database/
+
+# テーブル一覧
+sqlite3 backend/database/todo.db ".tables"
+
+# users テーブル構造
+sqlite3 backend/database/todo.db ".schema users"
+
+# 上位5件表示
+sqlite3 backend/database/todo.db "SELECT * FROM users LIMIT 5;"
+```
+
+## 認証 API 確認
+
+```bash
+# ユーザ登録
+curl -X POST http://localhost:3000/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"alice","email":"a@example.com","password":"pass1234"}'
+
+# ログイン (アクセストークン + リフレッシュトークン)
+curl -X POST http://localhost:3000/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"alice","password":"pass1234"}' \
+  -c refresh.txt     # RT を Cookie 保存する場合
+
+# 保護 API 呼び出し
+curl -X GET http://localhost:3000/api/todos \
+  -H "Authorization: Bearer <ACCESS_TOKEN>"
+
+# トークンリフレッシュ
+curl -X POST http://localhost:3000/api/auth/refresh \
+  -b refresh.txt
+```
+
+## サーバー操作
+
+```bash
+# 起動
+cd backend && npm run dev
+
+# 停止
+pkill -f "node.*server.js"
+
+# ポート確認
+lsof -i:3000
+```
+
+---
+
+> 詳細な検証手順は各 Phase ガイドを参照。
+
+<!-- 編集禁止: メタ情報 -->
