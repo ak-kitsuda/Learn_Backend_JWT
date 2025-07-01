@@ -44,6 +44,11 @@ Thumbs.db
 *.sqlite
 *.sqlite3
 
+# JWT学習プロジェクト専用データベースファイル
+backend/data/*.db
+backend/data/*.sqlite
+backend/data/*.sqlite3
+
 # Build directories
 dist/
 build/ 
