@@ -1,6 +1,6 @@
-// Express.js を読み込み
-const express = require('express');
-const cors = require('cors');
+// Express.js を読み込み (ES6モジュール形式)
+import express from 'express';
+import cors from 'cors';
 
 // Express アプリケーションを作成
 const app = express();
