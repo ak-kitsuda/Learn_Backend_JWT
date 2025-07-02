@@ -157,31 +157,116 @@ const users = [];
 let currentUser = null;
 ```
 
-### 4. クオーテーション（引用符）の統一
+### 4. シングルクオート（引用符）統一ルール
+
+#### 📋 基本原則
+**すべての文字列リテラルはシングルクオート `'` を使用する**
 
 ```javascript
 // ✅ 推奨: シングルクオート
 const message = 'Hello JWT World!';
 const apiEndpoint = '/api/auth/login';
 const jwtSecret = 'your-256-bit-secret';
+const fileName = 'jwt-comparison.js';
+const cssClass = 'btn-primary';
 
 // オブジェクトのプロパティ
 const config = {
   issuer: 'jwt-learn-app',
   audience: 'jwt-learn-users',
-  algorithm: 'HS256'
+  algorithm: 'HS256',
+  jwtSecret: 'demo-secret-key-for-learning-only'
 };
+
+// 配列要素
+const roles = ['user', 'admin', 'moderator'];
+const endpoints = ['/api/login', '/api/logout', '/api/refresh'];
 
 // ❌ 避ける: ダブルクオート（一貫性のため）
 const message = "Hello JWT World!";
 const apiEndpoint = "/api/auth/login";
+const jwtSecret = "your-256-bit-secret";
 ```
 
-**例外**: 文字列内にシングルクオートが含まれる場合はダブルクオートを使用
+#### 🔄 例外ケース
+**文字列内にシングルクオートが含まれる場合のみダブルクオートを使用**
+
 ```javascript
 // ✅ 例外的にダブルクオート使用
 const message = "User's authentication failed";
 const errorText = "Can't process the request";
+const description = "The user's token has expired";
+
+// ✅ または、エスケープを使用（推奨）
+const message = 'User\'s authentication failed';
+const errorText = 'Can\'t process the request';
+const description = 'The user\'s token has expired';
+```
+
+#### 🔧 自動修正方法
+
+```bash
+# ESLintで自動修正
+npx eslint your-file.js --fix
+
+# プロジェクト全体のシングルクオート統一
+npx eslint backend/**/*.js --fix
+npx eslint frontend/**/*.js --fix
+
+# 修正確認
+npx eslint backend/**/*.js
+```
+
+#### 📊 具体的な修正例
+
+```javascript
+// 修正前（ESLint warning発生）
+console.log("セッション作成完了");
+const error = "認証エラーが発生しました";
+const config = {
+  secret: "jwt-secret-key",
+  algorithm: "HS256"
+};
+
+// 修正後（ESLint warning解消）
+console.log('セッション作成完了');
+const error = '認証エラーが発生しました';
+const config = {
+  secret: 'jwt-secret-key',
+  algorithm: 'HS256'
+};
+```
+
+#### 🎯 Template Literal（テンプレートリテラル）の使用
+
+```javascript
+// ✅ 変数埋め込み時はテンプレートリテラル（バッククオート）
+const userId = 123;
+const username = 'alice';
+
+const welcomeMessage = `Welcome ${username}! Your ID is ${userId}`;
+const apiUrl = `https://api.example.com/users/${userId}`;
+const logMessage = `User ${username} logged in at ${new Date().toISOString()}`;
+
+// ❌ 避ける: 文字列連結
+const welcomeMessage = 'Welcome ' + username + '! Your ID is ' + userId;
+const apiUrl = 'https://api.example.com/users/' + userId;
+```
+
+#### ⚠️ よくある間違い
+
+```javascript
+// ❌ 間違い: JSON内でのシングルクオート
+const jsonString = "{'key': 'value'}"; // JSONは必ずダブルクオート
+
+// ✅ 正しい: JSON.stringifyを使用
+const jsonString = JSON.stringify({ key: 'value' });
+
+// ❌ 間違い: HTMLテンプレート内でのクオート混在
+const htmlTemplate = '<div class="container">Content</div>';
+
+// ✅ 正しい: HTMLはダブルクオート、JS文字列はシングルクオート
+const htmlTemplate = '<div class="container">Content</div>';
 ```
 
 ---
@@ -204,8 +289,28 @@ export default [
 **この設定により以下が自動チェックされます**:
 - `require` 使用時の自動エラー検出
 - ES6 import/export の推奨
-- シングルクオート使用の推奨（`"quotes": ["warn", "single"]`）
+- **シングルクオート使用の推奨**（`"quotes": ["warn", "single"]`）
 - 最新JavaScript機能の利用可能
+
+#### 🔧 シングルクオート設定の詳細
+
+現在のESLint設定では、以下のルールが適用されています：
+
+```javascript
+// backend/eslint.config.js で設定されている
+rules: {
+  'quotes': ['warn', 'single', { 
+    'avoidEscape': true,           // エスケープ回避時はダブルクオート許可
+    'allowTemplateLiterals': true  // テンプレートリテラル許可
+  }]
+}
+```
+
+**設定の効果**:
+- ダブルクオート使用時に `warning` 表示
+- `npx eslint --fix` で自動修正可能
+- エスケープが必要な場合は例外として許可
+- テンプレートリテラル（`${}` 埋め込み）は許可
 
 ---
 
@@ -250,16 +355,35 @@ export { demonstrateJWTConcepts as jwtDemo };
 - [ ] ファイル拡張子 `.js` を明記
 - [ ] async/await を活用
 - [ ] const/let を使用（var禁止）
-- [ ] シングルクオート使用（文字列リテラル）
-- [ ] ESLint エラーなし
+- [ ] **シングルクオート使用（すべての文字列リテラル）**
+- [ ] テンプレートリテラル使用（変数埋め込み時）
+- [ ] ESLint エラー・警告なし
 
 ### 既存ファイル修正時
 
 - [ ] CommonJS → ES6 への変換完了
 - [ ] 依存関係のimport文更新
 - [ ] export文の適切な設定
-- [ ] シングルクオートへの統一
+- [ ] **ダブルクオート → シングルクオートへの統一**
+- [ ] `npx eslint --fix` による自動修正実行
+- [ ] ESLint警告0件確認
 - [ ] 動作確認完了
+
+### シングルクオート確認手順
+
+```bash
+# 1. 現在のwarning確認
+npx eslint backend/**/*.js
+
+# 2. 自動修正実行
+npx eslint backend/**/*.js --fix
+
+# 3. 修正完了確認
+npx eslint backend/**/*.js
+
+# 4. 動作テスト
+npm test  # or node your-file.js
+```
 
 ### Phase2 学習での活用
 
@@ -297,24 +421,80 @@ export { generateToken };
 
 ---
 
+## 🚨 シングルクオートエラー対処法
+
+### よくあるESLint警告と解決法
+
+```bash
+# 警告例
+/backend/demo/session-jwt-comparison.js
+   76:17  warning  Strings must use singlequote  quotes
+  109:17  warning  Strings must use singlequote  quotes
+```
+
+**即座解決法**:
+```bash
+# 自動修正（推奨）
+npx eslint backend/demo/session-jwt-comparison.js --fix
+
+# プロジェクト全体
+npx eslint backend/**/*.js --fix
+```
+
+### 手動修正が必要なケース
+
+```javascript
+// 複雑なケース: JSON文字列
+const jsonConfig = '{"key": "value", "nested": {"prop": "data"}}';
+
+// HTML文字列（属性はダブルクオート維持）
+const htmlTemplate = '<div class="container" id="main"></div>';
+
+// SQL文字列
+const query = 'SELECT * FROM users WHERE name = ? AND role = ?';
+```
+
+### 修正前後の比較確認
+
+```bash
+# 修正前の状態確認
+git diff
+
+# 修正後の動作確認
+node backend/demo/session-jwt-comparison.js
+```
+
+---
+
 ## ⚠️ 重要な注意事項
 
 1. **段階的移行**: 大きなファイルは段階的にES6に移行
 2. **動作確認**: 各変更後に必ず動作確認を実施
 3. **学習優先**: JWT学習の妨げにならないよう配慮
 4. **一貫性維持**: 新規コードは必ずES6形式で作成
+5. **シングルクオート統一**: すべてのJSファイルでESLint警告0件を維持
 
 ---
 
 ## 🎓 学習効果
 
-ES6形式の統一により以下の学習効果が期待できます：
+ES6形式とシングルクオート統一により以下の学習効果が期待できます：
 
+### コーディングスキル向上
 - **現代的なJavaScript**: 業界標準の書き方を習得
 - **非同期処理**: async/await の自然な活用
 - **モジュール管理**: 依存関係の明確化
-- **コード一貫性**: シングルクオートによる統一されたスタイル
+- **コード一貫性**: 統一された可読性の高いスタイル
+
+### 開発効率向上
+- **ESLint自動修正**: `--fix` オプションによる即座修正
+- **警告0件**: 一貫したコーディング標準の維持
+- **チーム開発**: 統一されたコードスタイルによる協調性向上
+
+### 実践的なJWT学習
 - **JWT実装**: 最新のライブラリ使用法の理解
+- **セキュリティ意識**: 一貫したコーディング標準による品質向上
+- **デバッグ効率**: 統一されたコードによる問題特定の迅速化
 
 ---
 
