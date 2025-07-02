@@ -1,0 +1,321 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# ES6 コーディング標準ルール
+
+## 🎯 目的
+
+JWT学習プロジェクト全体でES6モジュール形式を統一し、現代的で一貫性のあるJavaScriptの書き方を習得する
+
+---
+
+## 📜 基本方針
+
+### ✅ 必須: ES6 モジュール形式の使用
+
+**すべてのJavaScriptファイルでES6 import/export構文を使用する**
+
+```javascript
+// ✅ 正しい: ES6 import/export
+import express from 'express';
+import { createConnection } from './database.js';
+import jwt from 'jsonwebtoken';
+
+export default app;
+export { authMiddleware, validateToken };
+```
+
+```javascript
+// ❌ 禁止: CommonJS require/module.exports
+const express = require('express');
+const { createConnection } = require('./database.js');
+const jwt = require('jsonwebtoken');
+
+module.exports = app;
+module.exports.authMiddleware = authMiddleware;
+```
+
+### 📁 適用対象ファイル
+
+- `backend/server.js` - メインサーバーファイル
+- `backend/database.js` - データベース接続
+- `backend/demo/*.js` - 学習用デモコード
+- `backend/middleware/*.js` - Express ミドルウェア
+- `backend/routes/*.js` - API ルート定義
+- すべての新規JavaScriptファイル
+
+---
+
+## 🔧 ES6 モジュール実装ガイド
+
+### 1. package.json 設定
+
+[backend/package.json](mdc:backend/package.json) には以下の設定が必要：
+
+```json
+{
+  "type": "module",
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
+```
+
+### 2. ファイル拡張子の使用
+
+```javascript
+// ✅ 正しい: 拡張子を明記
+import { Database } from './database.js';
+import authRoutes from './routes/auth.js';
+
+// ❌ 間違い: 拡張子省略
+import { Database } from './database';
+import authRoutes from './routes/auth';
+```
+
+### 3. 標準モジュールのimport
+
+```javascript
+// ✅ Node.js標準モジュール（ES6形式）
+import crypto from 'crypto';
+import fs from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+// 現在のファイルパス取得（ES6モジュールでの__dirname代替）
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+```
+
+### 4. 非同期処理の活用
+
+```javascript
+// ✅ 推奨: async/await + ES6 modules
+import jwt from 'jsonwebtoken';
+
+export const generateToken = async (payload) => {
+  try {
+    const token = jwt.sign(payload, process.env.JWT_SECRET, {
+      expiresIn: '15m'
+    });
+    return token;
+  } catch (error) {
+    throw new Error(`Token generation failed: ${error.message}`);
+  }
+};
+```
+
+---
+
+## 🚫 避けるべきパターン
+
+### 1. CommonJS 混在
+
+```javascript
+// ❌ 絶対に避ける: CommonJSとES6の混在
+import express from 'express';
+const jwt = require('jsonwebtoken'); // CommonJS混在
+```
+
+### 2. 古いPromise記法
+
+```javascript
+// ❌ 避ける: 古いPromise記法
+function getUser(id) {
+  return database.query('SELECT * FROM users WHERE id = ?', [id])
+    .then(result => result[0])
+    .catch(error => {
+      console.error(error);
+      throw error;
+    });
+}
+
+// ✅ 推奨: async/await
+async function getUser(id) {
+  try {
+    const result = await database.query('SELECT * FROM users WHERE id = ?', [id]);
+    return result[0];
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+```
+
+### 3. var の使用
+
+```javascript
+// ❌ 避ける: var
+var config = require('./config');
+var users = [];
+
+// ✅ 推奨: const/let
+import config from './config.js';
+const users = [];
+let currentUser = null;
+```
+
+### 4. クオーテーション（引用符）の統一
+
+```javascript
+// ✅ 推奨: シングルクオート
+const message = 'Hello JWT World!';
+const apiEndpoint = '/api/auth/login';
+const jwtSecret = 'your-256-bit-secret';
+
+// オブジェクトのプロパティ
+const config = {
+  issuer: 'jwt-learn-app',
+  audience: 'jwt-learn-users',
+  algorithm: 'HS256'
+};
+
+// ❌ 避ける: ダブルクオート（一貫性のため）
+const message = "Hello JWT World!";
+const apiEndpoint = "/api/auth/login";
+```
+
+**例外**: 文字列内にシングルクオートが含まれる場合はダブルクオートを使用
+```javascript
+// ✅ 例外的にダブルクオート使用
+const message = "User's authentication failed";
+const errorText = "Can't process the request";
+```
+
+---
+
+## 🔍 ESLint 設定との整合性
+
+現在の [backend/eslint.config.js](mdc:backend/eslint.config.js) 設定:
+
+```javascript
+export default [
+  {
+    languageOptions: {
+      sourceType: "module", // ES6モジュール
+      ecmaVersion: 2022     // 最新ES機能
+    }
+  }
+];
+```
+
+**この設定により以下が自動チェックされます**:
+- `require` 使用時の自動エラー検出
+- ES6 import/export の推奨
+- シングルクオート使用の推奨（`"quotes": ["warn", "single"]`）
+- 最新JavaScript機能の利用可能
+
+---
+
+## 📚 学習用デモコードでの適用例
+
+### Phase2 デモコードの修正
+
+```javascript
+// backend/demo/jwt-concept-demo.js の正しい書き方
+import crypto from 'crypto';
+import { fileURLToPath } from 'url';
+
+// 【学習用デモ】JWT基礎概念理解デモ
+const demonstrateJWTConcepts = () => {
+  console.log('🎓 === JWT基礎概念デモ開始 ===\n');
+  
+  // Base64URL エンコーディングデモ
+  const originalText = "Hello JWT World!";
+  const base64URL = Buffer.from(originalText)
+    .toString('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
+    
+  console.log('Base64URL:', base64URL);
+};
+
+// ES6 default export
+export default demonstrateJWTConcepts;
+
+// 名前付きexport
+export { demonstrateJWTConcepts as jwtDemo };
+```
+
+---
+
+## 🚀 実装チェックリスト
+
+### 新しいファイル作成時
+
+- [ ] ES6 import/export のみ使用
+- [ ] ファイル拡張子 `.js` を明記
+- [ ] async/await を活用
+- [ ] const/let を使用（var禁止）
+- [ ] シングルクオート使用（文字列リテラル）
+- [ ] ESLint エラーなし
+
+### 既存ファイル修正時
+
+- [ ] CommonJS → ES6 への変換完了
+- [ ] 依存関係のimport文更新
+- [ ] export文の適切な設定
+- [ ] シングルクオートへの統一
+- [ ] 動作確認完了
+
+### Phase2 学習での活用
+
+- [ ] すべてのデモコードがES6形式
+- [ ] JWT ライブラリのES6 import
+- [ ] 学習効果の向上（現代的なコード）
+
+---
+
+## 🔄 移行ガイド
+
+### CommonJS → ES6 変換パターン
+
+```javascript
+// Before (CommonJS)
+const express = require('express');
+const jwt = require('jsonwebtoken');
+const { Database } = require('./database');
+
+const app = express();
+
+module.exports = app;
+module.exports.generateToken = generateToken;
+
+// After (ES6 + シングルクオート統一)
+import express from 'express';
+import jwt from 'jsonwebtoken';
+import { Database } from './database.js';
+
+const app = express();
+
+export default app;
+export { generateToken };
+```
+
+---
+
+## ⚠️ 重要な注意事項
+
+1. **段階的移行**: 大きなファイルは段階的にES6に移行
+2. **動作確認**: 各変更後に必ず動作確認を実施
+3. **学習優先**: JWT学習の妨げにならないよう配慮
+4. **一貫性維持**: 新規コードは必ずES6形式で作成
+
+---
+
+## 🎓 学習効果
+
+ES6形式の統一により以下の学習効果が期待できます：
+
+- **現代的なJavaScript**: 業界標準の書き方を習得
+- **非同期処理**: async/await の自然な活用
+- **モジュール管理**: 依存関係の明確化
+- **コード一貫性**: シングルクオートによる統一されたスタイル
+- **JWT実装**: 最新のライブラリ使用法の理解
+
+---
+
+*このルールに従って、JWT学習プロジェクト全体でモダンなJavaScriptコードを書きましょう。*
