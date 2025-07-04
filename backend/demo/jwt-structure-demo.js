@@ -9,6 +9,10 @@
 
 // Node.js標準モジュールを使用（ES6形式）
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+
+// 環境変数を読み込み
+dotenv.config();
 
 console.log('🎓 === JWT構造解析デモ開始 ===\n');
 
@@ -160,7 +164,7 @@ try {
   console.log('');
   
   // 署名検証のデモンストレーション
-  const secret = 'your-256-bit-secret'; // サンプル用秘密鍵
+  const secret = process.env.JWT_SECRET || 'your-256-bit-secret'; // 環境変数使用
   const signatureInput = `${jwtParts.header}.${jwtParts.payload}`;
   
   console.log('🔧 署名検証プロセス:');

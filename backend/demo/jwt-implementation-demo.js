@@ -1,4 +1,8 @@
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+// 環境変数を読み込み
+dotenv.config();
 
 // 【学習用デモ】JWT実装基礎 - jsonwebtokenライブラリの基本操作
 console.log('🎓 === JWT実装基礎デモ開始 ===\n');
@@ -7,8 +11,8 @@ console.log('🎓 === JWT実装基礎デモ開始 ===\n');
 const demonstrateJWTGeneration = () => {
   console.log('📝 1. JWT生成デモ\n');
   
-  // デモ用秘密鍵（実運用では環境変数から読み込み）
-  const SECRET_KEY = 'demo-secret-key-for-learning-only';
+  // 環境変数から秘密鍵を読み込み（実運用と同じ方法）
+  const SECRET_KEY = process.env.JWT_SECRET;
   
   // ペイロード（実際のユーザー情報）
   const payload = {
@@ -24,12 +28,12 @@ const demonstrateJWTGeneration = () => {
   console.log('生成されたトークン:', basicToken);
   console.log('トークンの長さ:', basicToken.length, '文字\n');
   
-  // オプション付きトークン生成
+  // オプション付きトークン生成（環境変数使用）
   console.log('🔹 オプション付きトークン生成:');
   const advancedToken = jwt.sign(payload, SECRET_KEY, {
-    expiresIn: '15m',           // 15分で期限切れ
-    issuer: 'jwt-learn-app',    // 発行者
-    audience: 'jwt-learn-users', // 対象者
+    expiresIn: process.env.JWT_EXPIRES_IN || '15m',    // 環境変数から読み込み
+    issuer: process.env.JWT_ISSUER || 'jwt-learn-app', // 環境変数から読み込み
+    audience: process.env.JWT_AUDIENCE || 'jwt-learn-users', // 環境変数から読み込み
     algorithm: 'HS256'          // 署名アルゴリズム
   });
   console.log('オプション付きトークン:', advancedToken);
@@ -72,12 +76,12 @@ const demonstrateJWTVerification = (tokens) => {
   }
   console.log('');
   
-  // オプション付きトークンの検証
+  // オプション付きトークンの検証（環境変数使用）
   console.log('🔹 オプション付きトークンの検証:');
   try {
     const decoded = jwt.verify(advancedToken, secretKey, {
-      issuer: 'jwt-learn-app',
-      audience: 'jwt-learn-users'
+      issuer: process.env.JWT_ISSUER || 'jwt-learn-app',
+      audience: process.env.JWT_AUDIENCE || 'jwt-learn-users'
     });
     console.log('✅ 検証成功（オプション付き）:');
     console.log('  - 発行者:', decoded.iss);
@@ -117,7 +121,7 @@ const demonstrateJWTVerification = (tokens) => {
 const demonstrateErrorHandling = () => {
   console.log('⚠️  3. エラーハンドリングデモ\n');
   
-  const SECRET_KEY = 'demo-secret-key-for-learning-only';
+  const SECRET_KEY = process.env.JWT_SECRET || 'demo-secret-key-for-learning-only';
   
   // 様々なエラーケースをテスト
   const errorCases = [
@@ -154,24 +158,24 @@ const demonstrateErrorHandling = () => {
 const demonstrateAdvancedOptions = () => {
   console.log('⚙️  4. 実用的な設定オプションデモ\n');
   
-  const SECRET_KEY = 'demo-secret-key-for-learning-only';
+  const SECRET_KEY = process.env.JWT_SECRET || 'demo-secret-key-for-learning-only';
   
-  // 複数の設定パターンを試す
+  // 複数の設定パターンを試す（環境変数使用）
   const configs = [
     {
-      name: 'アクセストークン設定',
+      name: 'アクセストークン設定（環境変数）',
       options: {
-        expiresIn: '15m',
-        issuer: 'jwt-learn-app',
-        audience: 'jwt-learn-users',
+        expiresIn: process.env.JWT_EXPIRES_IN || '15m',
+        issuer: process.env.JWT_ISSUER || 'jwt-learn-app',
+        audience: process.env.JWT_AUDIENCE || 'jwt-learn-users',
         algorithm: 'HS256'
       }
     },
     {
-      name: 'リフレッシュトークン設定',
+      name: 'リフレッシュトークン設定（環境変数）',
       options: {
-        expiresIn: '7d',
-        issuer: 'jwt-learn-app',
+        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
+        issuer: process.env.JWT_ISSUER || 'jwt-learn-app',
         audience: 'jwt-learn-refresh',
         algorithm: 'HS256'
       }
@@ -180,7 +184,7 @@ const demonstrateAdvancedOptions = () => {
       name: 'セッション風短期間設定',
       options: {
         expiresIn: '30m',
-        issuer: 'jwt-learn-app',
+        issuer: process.env.JWT_ISSUER || 'jwt-learn-app',
         notBefore: 0,  // 即座に有効
         algorithm: 'HS256'
       }
@@ -212,7 +216,7 @@ const demonstrateAdvancedOptions = () => {
 const demonstrateTokenDecoding = () => {
   console.log('🔓 5. トークンデコード（検証なし）デモ\n');
   
-  const SECRET_KEY = 'demo-secret-key-for-learning-only';
+  const SECRET_KEY = process.env.JWT_SECRET || 'demo-secret-key-for-learning-only';
   const payload = { userId: 789, username: 'charlie', role: 'user' };
   const token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' });
   

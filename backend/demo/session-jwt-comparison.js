@@ -1,5 +1,9 @@
 import crypto from 'crypto';
 import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
+
+// 環境変数を読み込み
+dotenv.config();
 
 // 【学習用デモ】セッション vs JWT 動作比較デモ
 console.log('🎓 === Phase2 Step3: セッション vs JWT 比較デモ ===\n');
@@ -86,7 +90,7 @@ class SessionStore {
 
 class JWTManager {
   constructor() {
-    this.secret = 'demo-secret-key-for-learning-only'; // 学習用
+    this.secret = process.env.JWT_SECRET || 'demo-secret-key-for-learning-only'; // 環境変数使用
     this.tokenCount = 0;
   }
 

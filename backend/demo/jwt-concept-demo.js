@@ -9,6 +9,10 @@
 
 // Node.js標準モジュールを使用してJWTの概念を説明（ES6形式）
 import crypto from 'crypto';
+import dotenv from 'dotenv';
+
+// 環境変数を読み込み
+dotenv.config();
 
 console.log('🎓 === JWT基礎概念デモ開始 ===\n');
 
@@ -107,7 +111,7 @@ console.log('認証チェック: トークン検証のみ → 外部ストアア
 
 console.log('📘 5. 署名による完全性保証\n');
 
-const secret = 'your-256-bit-secret';
+const secret = process.env.JWT_SECRET || 'your-256-bit-secret';
 const header = { alg: 'HS256', typ: 'JWT' };
 const payload = { userId: 123, exp: Math.floor(Date.now() / 1000) + 3600 };
 
