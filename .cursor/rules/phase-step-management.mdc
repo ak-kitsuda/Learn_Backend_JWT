@@ -13,7 +13,8 @@ alwaysApply: true
 
 | フェーズ | 概要 | 完了条件 |
 | :-- | :-- | :-- |
-| Phase1 | バックエンド基盤構築 | server.js で `/api/hello`, `/api/db-test` が動作し、SQLite 接続確認が取れている |
+| Phase1 | バックエンド基盤構築 | server.js で `/api/hello`, `/api/db-test` が動作し、SQLite 接続確認が取れている ✅ |
+| Phase2 | JWT理論学習 | JWT の3部構造理解、jsonwebtoken基本操作、セキュリティ基礎知識習得完了 |
 
 ---
 
@@ -38,7 +39,8 @@ alwaysApply: true
 - `feature/<phase>-<short-title>`: 各フェーズ機能実装用
 
 ```text
-例: feature/phase2-jwt-login
+例: feature/phase2-jwt-theory
+例: feature/phase3-jwt-auth-api
 ```
 
 ---
